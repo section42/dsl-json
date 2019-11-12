@@ -53,11 +53,23 @@ public final class FormatDescription<T> implements JsonWriter.WriteObject<T>, Js
 		this.typeName = name.getBytes(utf8);
 		this.quotedTypeName = ("\"" + name + "\"").getBytes(utf8);
 		this.typeHash = DecodePropertyInfo.calcHash(name);
-		this.startErrorBoth = String.format("Expecting '{' or '[' to start decoding %s", manifest.getTypeName());
-		this.startErrorObject = String.format("Expecting '{' to start decoding %s", manifest.getTypeName());
-		this.startErrorArray = String.format("Expecting '[' to start decoding %s", manifest.getTypeName());
-		this.formatErrorObject = String.format("Object format for %s is not defined", manifest.getTypeName());
-		this.formatErrorArray = String.format("Array format for %s is not defined", manifest.getTypeName());
+		this.startErrorBoth = String.format("Expecting '{' or '[' to start decoding %s", getTypeNameSafe(manifest));
+		this.startErrorObject = String.format("Expecting '{' to start decoding %s", getTypeNameSafe(manifest));
+		this.startErrorArray = String.format("Expecting '[' to start decoding %s", getTypeNameSafe(manifest));
+		this.formatErrorObject = String.format("Object format for %s is not defined", getTypeNameSafe(manifest));
+		this.formatErrorArray = String.format("Array format for %s is not defined", getTypeNameSafe(manifest));
+	}
+
+	private String getTypeNameSafe(Type type) {
+		if(type == null) {
+			return "Null Type";
+		}
+
+		try {
+			return type.getTypeName();
+		} catch (NoSuchMethodError e) {
+			return "Unknown Type";
+		}
 	}
 
 	public final void write(final JsonWriter writer, @Nullable final T instance) {
